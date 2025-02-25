@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swastha AI - Healthcare Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <!-- <img src="https://www.citypng.com/public/uploads/preview/louis-vuitton-gold-logo-hd-png-701751694771300ifegnuqnmd.png" height="40px" width="40px" alt="1" srcset=""> -->
+            <a href="index.html"><img src="images.jpg" height="80px" width="100px"></a>
+            
+        </div>
+        <div class="nav-content">
+            <ul>
+                <a href="services.html"><li>Services</li></a>
+                <a href="about.html"><li>About</li></a>
+                <a href="register.html"><li>Register</li></a>
+            </ul>
+        </div>
+    </nav> 
+    <!-- Header Section -->
+    <div class="content">
+        <h1>Welcome to Swasthya AI</h1>
+        <p>Experience intelligent conversations with our AI-powered chatbot.</p>
+    </div>
+    <div class="line"></div>
+<!-- Hero Section -->
+<video class="video" src="video.mp4" autoplay muted loop></video>
+
+    <div class="container">
+        <header>
+            <h1>🩺 Swasthya AI</h1>
+            <p>Your 24/7 AI Health Companion</p>
+        </header>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <p>Hello! I'm Swasthya AI. How can I assist you with your health today?</p>
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <input type="text" id="userInput" placeholder="Type your health concern...">
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="dot-flashing"></div>
+        </div>
+    </div>
+
+
+<!-- Footer section -->
+<Footer>
+            <div class="footer">
+                <p>&copy; 2025 Chatbot. All Rights Reserved.</p>
+                <p>
+                    <a href="#">Privacy Policy</a> | 
+                    <a href="#">Terms of Service</a> | 
+                    <a href="#">Contact Us</a>
+                </p>
+            </div>
+        
+</Footer>
+
+    
+</body>
+<script type="module">
+import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+        
+    const API_KEY = "AIzaSyCwcwmufQ27zeg9PeWmUqrTNuQnNd5FrWM";
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const chatMessages = document.getElementById('chatMessages');
+        const loading = document.getElementById('loading');
+
+        const genAI = new GoogleGenerativeAI(API_KEY);
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+        async function generateResponse(prompt) {
+            try {
+                loading.style.display = 'flex';
+                sendButton.disabled = true;
+
+                const result = await model.generateContent(prompt);
+                console.log("API Response:", result);
+
+                if (result.response && result.response.candidates && result.response.candidates.length > 0) {
+                    return result.response.candidates[0].content.parts[0].text;
+                }
+                return "I'm not sure how to respond. Please try again.";
+            } catch (error) {
+                console.error("Error:", error);
+                return "Sorry, I ran into an issue. Try again later.";
+            } finally {
+                loading.style.display = 'none';
+                sendButton.disabled = false;
+            }
+        }
+
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            const messageContent = document.createElement('p');
+            messageContent.textContent = message;
+            
+            messageDiv.appendChild(messageContent);
+            chatMessages.appendChild(messageDiv);
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        sendButton.addEventListener('click', async () => {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            userInput.value = '';
+
+            const response = await generateResponse(`
+                You are Suraksha AI, a healthcare assistant. Respond to this health-related query in a clear and professional manner: ${message}
+                Provide accurate medical information and advise the user to consult a doctor for serious concerns.
+            `);
+            
+            addMessage(response);
+        });
+
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+    });</script>
+</html>
